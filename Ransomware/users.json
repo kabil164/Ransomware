@@ -1,0 +1,16 @@
+{
+    "users": [
+        {
+            "username": "user",
+            "password": "scrypt:32768:8:1$d6ZvTHuzcgRrNe5a$33625b6115dda5721f63b9c63541f9044b5faabe321fe17558d1318de17c9a2eae91740f0ac3e32100b64b74a92b81d17526c274a2ed449e1945e880a137c07b",
+            "email": "pro56work@gmail.com",
+            "is_admin": false
+        },
+        {
+            "username": "kabil",
+            "password": "scrypt:32768:8:1$VWAhS19DyYyGA9fQ$bb3e3588871c3f04c78d184f8ef44d423c934c912b27de4712f65d86ae4e6d79753192801b10f81336cad226ec4abe00159672d3c03f036ac8dadd712faa1e34",
+            "email": "kabilvishnu164@gmail.com",
+            "is_admin": false
+        }
+    ]
+}

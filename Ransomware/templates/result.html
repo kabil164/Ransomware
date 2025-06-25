@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RansomGuard - Analysis Result</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2D3250;
+            --secondary: #424769;
+            --accent: #7077A1;
+            --light: #F6B17A;
+            --success: #2ed573;
+            --warning: #ffa502;
+            --danger: #ff4757;
+            --card-bg: rgba(66, 71, 105, 0.2);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #ffffff;
+            min-height: 100vh;
+            padding: 1rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .result-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--light) 0%, #FFD1A1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+        }
+
+        .prediction-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.2rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .metric-label {
+            font-size: 0.85rem;
+            color: var(--light);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 0.4rem;
+        }
+
+        .metric-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.8rem;
+            background: linear-gradient(135deg, var(--light) 0%, #FFD1A1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .analysis-section {
+            margin-top: 1.5rem;
+        }
+
+        .analysis-section h2 {
+            font-size: 1.6rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .analysis-content {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.2rem;
+            border-radius: 12px;
+            margin-bottom: 1.2rem;
+        }
+
+        .analysis-content p {
+            margin-bottom: 0.8rem;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .feature-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .feature-table th, .feature-table td {
+            padding: 0.8rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--light);
+        }
+
+        .feature-table td {
+            font-size: 0.95rem;
+        }
+
+        .tooltip {
+            position: relative;
+            cursor: help;
+        }
+
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            z-index: 10;
+        }
+
+        .confidence-bar {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin: 0.8rem 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--success), var(--light));
+            border-radius: 3px;
+            transition: width 1s ease-out;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-link {
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .nav-primary {
+            background: linear-gradient(135deg, var(--light) 0%, #FFD1A1 100%);
+            color: var(--primary);
+        }
+
+        .nav-secondary {
+            background: rgba(246, 177, 122, 0.1);
+            border: 2px solid rgba(246, 177, 122, 0.3);
+            color: var(--light);
+        }
+
+        .nav-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .prediction-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .navigation {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-link {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .feature-table th, .feature-table td {
+                font-size: 0.9rem;
+                padding: 0.6rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .metric-value {
+                font-size: 1.5rem;
+            }
+
+            .analysis-section h2 {
+                font-size: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>
+            <i class="fas fa-shield-alt" aria-label="Shield icon"></i>
+            Threat Analysis Result
+        </h1>
+
+        <div class="result-card">
+            <div class="prediction-summary">
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-robot" aria-label="Prediction icon"></i>
+                    </div>
+                    <div class="metric-label">Prediction</div>
+                    <div class="metric-value" style="color: {% if prediction == 'Malicious' %}var(--danger){% else %}var(--success){% endif %}">
+                        {{ prediction }}
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-icon">
+                        <i class="fas fa-chart-line" aria-label="Confidence icon"></i>
+                    </div>
+                    <div class="metric-label">Confidence Score</div>
+                    <div class="metric-value">
+                        {% if confidence is not none %}
+                            {{ "%.1f"|format(confidence * 100) }}
+                        {% else %}
+                            N/A
+                        {% endif %}
+                    </div>
+                    {% if confidence is not none %}
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" style="width: {{ confidence * 100 }}%"></div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if feature_contributions %}
+            <div class="analysis-section">
+                <h2>
+                    <i class="fas fa-chart-bar" aria-label="Feature contributions icon"></i>
+                    Feature Contributions
+                </h2>
+                <div class="analysis-content">
+                    <table class="feature-table">
+                        <thead>
+                            <tr>
+                                <th>Feature</th>
+                                <th>Importance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for feature, importance in feature_contributions.items() %}
+                            <tr>
+                                <td class="tooltip" data-tooltip="Contribution of {{ feature }} to the prediction">{{ feature }}</td>
+                                <td>
+                                    {% if importance is number %}
+                                        {{ "%.2f"|format(importance * 100) }}%
+                                    {% else %}
+                                        N/A
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="analysis-section">
+                <h2>
+                    <i class="fas fa-brain" aria-label="AI analysis icon"></i>
+                    AI Analysis
+                </h2>
+                <div class="analysis-content">
+                    <p>{{ gpt_response | safe }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <a href="{{ url_for('predict') }}" class="nav-link nav-primary">
+                <i class="fas fa-redo" aria-label="New analysis icon"></i>
+                New Analysis
+            </a>
+            <a href="{{ url_for('chat') }}" class="nav-link nav-secondary">
+                <i class="fas fa-comments" aria-label="Chat support icon"></i>
+                Chat Support
+            </a>
+            <a href="{{ url_for('landing') }}" class="nav-link nav-secondary">
+                <i class="fas fa-home" aria-label="Home icon"></i>
+                Home
+            </a>
+            <a href="{{ url_for('download_report') }}" class="nav-link nav-secondary">
+                <i class="fas fa-download" aria-label="Download report icon"></i>
+                Download Report
+            </a>
+        </div>
+    </div>
+</body>
+</html>
